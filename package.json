@@ -7,6 +7,7 @@
     "lint:tests": "npx eslint --ext .ts spec/",
     "start": "node -r module-alias/register ./dist --env=production",
     "dev": "nodemon",
+    "htest": "ts-node ./src/mm.ts",
     "test": "nodemon --config ./spec/nodemon.json",
     "test:no-reloading": "npx ts-node --files -r tsconfig-paths/register ./spec"
   },
@@ -44,5 +45,10 @@
     "ts-command-line-args": "^2.5.1",
     "ts-node": "^10.9.1",
     "tsconfig-paths": "^4.2.0"
+  },
+  "devDependencies": {
+    "@types/cookie-parser": "^1.4.6",
+    "@types/jsonfile": "^6.1.4",
+    "@types/morgan": "^1.9.9"
   }
 }

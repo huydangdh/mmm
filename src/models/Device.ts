@@ -28,9 +28,7 @@ class Device extends EventEmitter {
   connectToDevice(): void {
     this.deviceSocket.connect(this.devicePort, this.deviceIP, () => {
       this.deviceStatus = "Connected";
-      console.log(
-        `${this.deviceName} connected to ${this.deviceIP}:${this.devicePort}`
-      );
+      this.emit("connected", `${this.deviceID}_${this.deviceName}`)
     });
 
     this.deviceSocket.on("data", (data) => {
@@ -41,12 +39,13 @@ class Device extends EventEmitter {
     this.deviceSocket.on("close", () => {
       this.deviceStatus = "Disconnected";
       this.emit("devClose", `${this.deviceID}_${this.deviceName}`);
-      console.log(`${this.deviceName} disconnected`);
+      //console.log(`${this.deviceName} disconnected`);
     });
 
     this.deviceSocket.on("error", (error) => {
+      this.deviceStatus = "Disconnected";
       this.emit("devError", `${this.deviceID}_${this.deviceName}`);
-      console.error(`Error in ${this.deviceName} connection: ${error.message}`);
+      //console.error(`Error in ${this.deviceName} connection: ${error.message}`);
     });
   }
 
@@ -60,7 +59,7 @@ class Device extends EventEmitter {
       deviceID: this.deviceID,
       data: data.toString(),
     });
-    console.log(`${this.deviceName} received data: ${data.toString()}`);
+    //console.log(`${this.deviceName} received data: ${data.toString()}`);
   }
 }
 

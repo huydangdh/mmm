@@ -87,5 +87,10 @@ app.get('/users', (_: Request, res: Response) => {
 
 
 // **** Export default **** //
+import SCADA from "./models/SCADA";
+
+var myScada = new SCADA()
+myScada.initializeDevices()
+myScada.connectAllDevices()
 
 export default app;
