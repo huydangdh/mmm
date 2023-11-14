@@ -87,6 +87,7 @@ app.get('/users', (_: Request, res: Response) => {
 
 
 // **** Export default **** //
+// huy them
 import SCADA from "./models/SCADA";
 
 var myScada = new SCADA()

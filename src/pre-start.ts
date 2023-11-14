@@ -9,7 +9,7 @@ import path from 'path';
 import dotenv from 'dotenv';
 import { parse } from 'ts-command-line-args';
 
-
+process.env.TZ = "Asia/Taipei"
 // **** Types **** //
 
 interface IArgs {
