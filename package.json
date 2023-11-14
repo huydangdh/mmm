@@ -42,6 +42,7 @@
     "jsonfile": "^6.1.0",
     "module-alias": "^2.2.3",
     "morgan": "^1.10.0",
+    "pg": "^8.11.3",
     "socket.io": "^4.7.2",
     "ts-command-line-args": "^2.5.1",
     "ts-node": "^10.9.1",
@@ -50,6 +51,7 @@
   "devDependencies": {
     "@types/cookie-parser": "^1.4.6",
     "@types/jsonfile": "^6.1.4",
-    "@types/morgan": "^1.9.9"
+    "@types/morgan": "^1.9.9",
+    "@types/pg": "^8.10.9"
   }
 }
