@@ -1,33 +1,37 @@
-import { Pool } from "pg";
+import { Pool, Client, QueryResult } from "pg";
 
 // Update your connection details
 const pool = new Pool({
-  user: "happ",
+  user: "huiapp",
   host: "127.0.0.1",
-  database: "hdb",
-  password: "1",
+  database: "huidb",
+  password: "",
   port: 5432,
+  max: 10
 });
+
+
+pool.on("error",(err, client)=>{
+	console.log("TCL: err", err)
+})
 
 async function callProcessDeviceData(
   deviceId: number,
   data: string
 ): Promise<any> {
-  try {
-    const client = await pool.connect();
 
-    const result = await client.query({
+  let res: any;
+  try {
+    const result = await pool.query({
       text: "SELECT * FROM process_device_data($1, $2)",
       values: [deviceId, data],
     });
-
-    //console.log("[I]DB: "+ result.rows[0].process_device_data);
-    return result.rows[0].process_device_data;
-  } catch (err) {
-    console.log("TCL: callProcessDeviceData_err", err);
-    return err
-  } finally {
+    res = result.rows[0].process_device_data;
+  } catch (error) {
+    res = error;
   }
+
+  return res;
 }
 
 // Example usage
