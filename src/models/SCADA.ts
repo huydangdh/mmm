@@ -1,12 +1,13 @@
 import callProcessDeviceData from "@src/services/DbService";
-import Device from "./Device";
+import Device, { DeviceStatus } from "./Device";
+import { deviceMockConfigs } from "@src/configs/Configs";
 
 class SCADA {
   private deviceList: Device[] = [];
 
   // Khởi tạo 10 devices từ cấu hình mock
   initializeDevices(): void {
-    const deviceConfigs = this.getDeviceMockConfigs(); // Hàm này trả về một mảng các cấu hình mock
+    const deviceConfigs = deviceMockConfigs; // Hàm này trả về một mảng các cấu hình mock
 
     deviceConfigs.forEach((config, index) => {
       const device = new Device(index + 1, config.name, config.ip, config.port);
@@ -14,44 +15,21 @@ class SCADA {
     });
   }
 
-  // Hàm này trả về một mảng cấu hình mock (để thay thế cho dữ liệu thực từ cơ sở dữ liệu)
-  private getDeviceMockConfigs(): {
-    name: string;
-    ip: string;
-    port: number;
-  }[] {
-    // Mock data - Bạn có thể thay thế bằng dữ liệu thực từ cơ sở dữ liệu
-    return [
-      { name: "Device1", ip: "127.0.0.1", port: 55960 },
-      { name: "Device2", ip: "127.0.0.1", port: 55961 },
-      { name: "Device3", ip: "127.0.0.1", port: 55962 },
-      { name: "Device4", ip: "127.0.0.1", port: 55963 },
-      { name: "Device5", ip: "127.0.0.1", port: 55964 },
-      { name: "Device6", ip: "127.0.0.1", port: 55965 },
-      { name: "Device7", ip: "127.0.0.1", port: 55966 },
-      { name: "Device8", ip: "127.0.0.1", port: 55967 },
-      { name: "Device9", ip: "127.0.0.1", port: 55968 },
-      { name: "Device10", ip: "127.0.0.1", port: 55969 },
-
-      // ... Thêm các cấu hình khác tương ứng
-    ];
-  }
-
   addDevice(device: Device): void {
     this.deviceList.push(device);
     // Lắng nghe sự kiện từ Device và gọi các hàm xử lý tương ứng
-    device.on("connected", (eventData) => {
+    device.on(DeviceStatus.Connected, (eventData) => {
       this.handleDeviceConnected(eventData, eventData);
     });
-    device.on("dataReceived", (eventData) => {
+    device.on(DeviceStatus.Receiving, (eventData) => {
       this.handleDataFromDevice(eventData.deviceID, eventData.data);
     });
 
-    device.on("devClose", (error) => {
+    device.on(DeviceStatus.Disconnected, (error) => {
       this.handleDeviceClose(device.deviceName, error);
     });
 
-    device.on("devError", (error) => {
+    device.on(DeviceStatus.Error, (error) => {
       this.handleDeviceError(device.deviceName, error);
     });
   }

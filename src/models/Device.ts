@@ -1,6 +1,13 @@
 import net from "net";
 import { EventEmitter } from "events";
 
+export enum DeviceStatus {
+  Connected = "Connected",
+  Disconnected = "Disconnected",
+  Error = "Error",
+  Receiving = "Receiving"
+ }
+
 class Device extends EventEmitter {
   public deviceID: number;
   public deviceName: string;
@@ -21,30 +28,34 @@ class Device extends EventEmitter {
     this.deviceName = deviceName;
     this.deviceIP = deviceIP;
     this.devicePort = devicePort;
-    this.deviceStatus = "Disconnected";
+    this.deviceStatus = DeviceStatus.Disconnected;
     this.deviceSocket = new net.Socket();
   }
 
   connectToDevice(): void {
+    if(this.deviceSocket.connecting){
+      this.deviceSocket.resetAndDestroy();
+    }
     this.deviceSocket.connect(this.devicePort, this.deviceIP, () => {
-      this.deviceStatus = "Connected";
-      this.emit("connected", `${this.deviceID}_${this.deviceName}`)
+      this.deviceStatus = DeviceStatus.Connected;
+      this.emit(DeviceStatus.Connected, `${this.deviceID}_${this.deviceName}`)
     });
 
     this.deviceSocket.on("data", (data) => {
       // Process received data
+      this.deviceStatus = DeviceStatus.Receiving;
       this.handleReceivedData(data);
     });
 
     this.deviceSocket.on("close", () => {
-      this.deviceStatus = "Disconnected";
-      this.emit("devClose", `${this.deviceID}_${this.deviceName}`);
+      this.deviceStatus = DeviceStatus.Disconnected;
+      this.emit(DeviceStatus.Disconnected, `${this.deviceID}_${this.deviceName}`);
       //console.log(`${this.deviceName} disconnected`);
     });
 
     this.deviceSocket.on("error", (error) => {
-      this.deviceStatus = "Disconnected";
-      this.emit("devError", `${this.deviceID}_${this.deviceName}`);
+      this.deviceStatus = DeviceStatus.Error;
+      this.emit(DeviceStatus.Error, `${this.deviceID}_${this.deviceName}`);
       //console.error(`Error in ${this.deviceName} connection: ${error.message}`);
     });
   }
@@ -54,7 +65,7 @@ class Device extends EventEmitter {
     // You can customize this based on your specific data processing needs
     // For example, you can use an EventEmitter to emit events
     // Emit event with the data
-    this.emit("dataReceived", {
+    this.emit(DeviceStatus.Receiving, {
       deviceName: this.deviceName,
       deviceID: this.deviceID,
       data: data.toString(),
