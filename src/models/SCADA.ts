@@ -6,11 +6,13 @@ import { Server, Socket } from "socket.io";
 enum ClientEmitMessage {
   GETSTATUSDEVICES = "GetStatusDevices",
   RECVSTATUSDEVICES = "RECVSTATUSDEVICES",
+  UPDATESTATUSDEVICES = "UPDATESTATUSDEVICES",
 }
 
 class SCADA {
   private deviceList: Device[] = [];
   private socketIO!: Server;
+  private checkDeviceStatusInterval: NodeJS.Timeout | null = null;
 
   // Create initializeSocketIO dont have args init with port 8888
   InitializeSCADA(port?: number) {
@@ -22,16 +24,19 @@ class SCADA {
     this.socketIO.on("connection", (socket: Socket) => {
       console.log("TCL: publicInitializeSCADA -> socket[id]=", socket.id);
 
-      socket.on(ClientEmitMessage.GETSTATUSDEVICES, (data:any) => {
+      socket.on(ClientEmitMessage.GETSTATUSDEVICES, (data: any) => {
         console.log("TCL: GETSTATUSDEVICES -> socket[id]=", socket.id);
-        socket.emit(
-          ClientEmitMessage.RECVSTATUSDEVICES,
-          JSON.stringify(this.deviceList)
-        );
+        const deviceStatusList = this.deviceList.map((device) => ({
+          deviceID: device.deviceID,
+          deviceName: device.deviceName,
+          deviceStatus: device.deviceStatus,
+          deviceIP: device.deviceIP,
+          devicePort: device.devicePort,
+        }));
+        socket.emit(ClientEmitMessage.RECVSTATUSDEVICES, deviceStatusList);
       });
     });
   }
-
   // Khởi tạo 10 devices từ cấu hình mock
   initializeDevices(): void {
     const deviceConfigs = deviceMockConfigs; // Hàm này trả về một mảng các cấu hình mock
@@ -40,9 +45,29 @@ class SCADA {
       const device = new Device(index + 1, config.name, config.ip, config.port);
       this.addDevice(device);
     });
-  }
 
-  addDevice(device: Device): void {
+    // Bắt đầu kiểm tra trạng thái các thiết bị mỗi giây
+    this.checkDeviceStatusInterval = setInterval(() => {
+      this.checkDeviceStatus();
+    }, 3000);
+  }
+  private checkDeviceStatus() {
+    const currentTime = Date.now();
+    this.deviceList.forEach((device) => {
+      //const lastDataReceivedTime = device.getLastDataReceivedTime();
+      // Kiểm tra nếu thiết bị chưa nhận được dữ liệu trong vòng 10 giây
+      //  if (lastDataReceivedTime && currentTime - lastDataReceivedTime > 10000) {
+      //   // Thiết lập trạng thái của thiết bị là "No Data"
+      //   device.setDeviceStatus(DeviceStatus.NoData);
+      //   // Thông báo hoặc xử lý theo nhu cầu của bạn
+      //   console.log(`Device ${device.deviceID} has no data for 10 seconds.`);
+      // }
+      if(device.deviceStatus == DeviceStatus.Disconnected){
+        device.connectToDevice()
+      }
+    });
+  }
+  public addDevice(device: Device): void {
     this.deviceList.push(device);
     // Lắng nghe sự kiện từ Device và gọi các hàm xử lý tương ứng
     device.on(DeviceStatus.Connected, (eventData) => {
@@ -60,41 +85,30 @@ class SCADA {
       this.handleDeviceError(device.deviceName, error);
     });
   }
-  handleDeviceConnected(deviceName: any, data: any) {
+  private handleDeviceConnected(deviceName: any, data: any) {
     console.log(
       `${new Date().toISOString()}=TCL: handleDeviceConnected -> ${deviceName},${data}`
     );
   }
-  handleDeviceError(deviceName: string, error: any) {
+  private handleDeviceError(deviceName: string, error: any) {
     console.log(
       `${new Date().toISOString()}=TCL: handleDeviceError -> ${deviceName},${error}`
     );
   }
-  handleDeviceClose(deviceName: string, error: any) {
+  private handleDeviceClose(deviceName: string, error: any) {
+    // Phát sóng sự kiện cập nhật cho tất cả các clients
+    const deviceStatusList = this.deviceList.map((device) => ({
+      deviceID: device.deviceID,
+      deviceName: device.deviceName,
+      deviceStatus: device.deviceStatus,
+      deviceIP: device.deviceIP,
+      devicePort: device.devicePort,
+    }));
+    this.socketIO.emit(ClientEmitMessage.RECVSTATUSDEVICES, deviceStatusList);
     console.log(
       `${new Date().toISOString()}=TCL: handleDeviceClose -> ${deviceName},${error}`
     );
   }
-
-  connectAllDevices(): void {
-    this.deviceList.forEach((device) => {
-      device.connectToDevice();
-    });
-  }
-
-  // Add other methods for handling and processing data from devices
-
-  // Example method to get data from all connected devices
-  getDataFromAllDevices(): void {
-    this.deviceList.forEach((device) => {
-      // Call method to get data from each device
-      // Modify as per your specific requirements
-      console.log(`${device.deviceName} data: getDataFromDevice()`);
-    });
-  }
-
-  // get all feild( expect Socket) devices
-
   private async handleDataFromDevice(deviceID: number, data: string) {
     // Process and handle data from the device
     try {
@@ -103,16 +117,29 @@ class SCADA {
         console.log(`${new Date().toISOString()}=DB_res_${deviceID}: ${res}`);
       });
     } catch (error) {
-      this.deviceList
-        .at(deviceID - 1)
-        ?.sendToDevice(`${data}|${error} \n`);
+      this.deviceList.at(deviceID - 1)?.sendToDevice(`${data}|${error} \n`);
     }
     console.log(
       `${new Date().toISOString()}=Data received from ${deviceID}: ${data}`
     );
   }
 
+  public connectAllDevices(): void {
+    this.deviceList.forEach((device) => {
+      device.connectToDevice();
+    });
+  }
+
   // Add other methods for handling and processing data from devices
+
+  // Example method to get data from all connected devices
+  private getDataFromAllDevices(): void {
+    this.deviceList.forEach((device) => {
+      // Call method to get data from each device
+      // Modify as per your specific requirements
+      console.log(`${device.deviceName} data: getDataFromDevice()`);
+    });
+  }
 }
 
 export default SCADA;

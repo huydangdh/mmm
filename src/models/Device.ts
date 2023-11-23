@@ -36,6 +36,7 @@ class Device extends EventEmitter {
     if(this.deviceSocket.connecting){
       this.deviceSocket.resetAndDestroy();
     }
+    if(this.deviceSocket.closed) this.deviceSocket = new net.Socket();
     this.deviceSocket.connect(this.devicePort, this.deviceIP, () => {
       this.deviceStatus = DeviceStatus.Connected;
       this.emit(DeviceStatus.Connected, `${this.deviceID}_${this.deviceName}`)
@@ -72,6 +73,7 @@ class Device extends EventEmitter {
       deviceID: this.deviceID,
       data: data.toString(),
     });
+    this.deviceStatus = DeviceStatus.Connected
     //console.log(`${this.deviceName} received data: ${data.toString()}`);
   }
 }

@@ -1,38 +1,76 @@
 <!DOCTYPE html>
 <html lang="en">
   <head>
-    <meta charset="UTF-8">
-    <title>Users</title>
-    <link rel="stylesheet" type="text/css" href="/stylesheets/users.css" />
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>SCADA Device Status</title>
+    <style>
+      body {
+        font-size: 2vw; /* Sử dụng đơn vị vw để kích thước chữ phụ thuộc vào chiều rộng của màn hình */
+      }
+
+      table {
+        font-family: Arial, sans-serif;
+        border-collapse: collapse;
+        width: 100%;
+        margin-top: 2vw; /* Sử dụng đơn vị vw cho khoảng cách từ đỉnh trang */
+        box-shadow: 0 0 20px rgba(0, 0, 0, 0.1);
+      }
+
+      th,
+      td {
+        border: 1px solid #ddd;
+        padding: 1.5vw; /* Sử dụng đơn vị vw cho kích thước padding */
+        text-align: left;
+      }
+
+      th {
+        background-color: #f2f2f2;
+      }
+
+      .connected {
+        background-color: #4caf50; /* Màu xanh lá cây */
+        color: white;
+      }
+
+      .receiving {
+        background-color: #2196f3; /* Màu xanh dương */
+        color: white;
+      }
+
+      .disconnected {
+        background-color: #f44336; /* Màu đỏ */
+        color: white;
+      }
+
+      .ip,
+      .port {
+        color: #333; /* Màu đen đậm */
+      }
+    </style>
   </head>
   <body>
+    <h1>SCADA Device Status</h1>
+    <table id="deviceTable">
+      <thead>
+        <tr>
+          <th>Device ID</th>
+          <th>Device IP</th>
+          <th>Device Port</th>
+          <th>Device Name</th>
+          <th>Device Status</th>
+        </tr>
+      </thead>
+      <tbody>
+        <!-- Device status rows will be dynamically added here -->
+      </tbody>
+    </table>
 
-    <!-- Add Users -->
-    <div class="users-column add-user-col">
-      <div class="column-header">
-        Add User:
-      </div>
-      <div>
-        <input id="name-input" placeholder="Name" />
-      </div>
-      <div>
-        <input id="email-input" placeholder="Email" />
-      </div>
-      <div>
-        <button id="add-user-btn">
-          Add
-        </button>
-      </div>
-    </div>
-
-    <!-- Display Users -->
-    <div class="users-column">
-      <div class="column-header">Users:</div>
-      <div id="all-users-anchor"></div>
-    </div>
-
+    <script
+      src="https://cdn.socket.io/4.6.0/socket.io.min.js"
+      integrity="sha384-c79GN5VsunZvi+Q/WObgk2in0CbZsHnjEqvFxC5DxHn9lTfNce2WW6h2pH6u/kF+"
+      crossorigin="anonymous"
+    ></script>
+    <script src="scripts/users.js"></script>
   </body>
-  <script src="https://cdn.socket.io/4.6.0/socket.io.min.js" integrity="sha384-c79GN5VsunZvi+Q/WObgk2in0CbZsHnjEqvFxC5DxHn9lTfNce2WW6h2pH6u/kF+" crossorigin="anonymous"></script>
-  <script src="scripts/http.js"></script>
-  <script src="scripts/users.js"></script>
 </html>
