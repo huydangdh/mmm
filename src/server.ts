@@ -92,6 +92,7 @@ import SCADA from "./models/SCADA";
 
 var myScada = new SCADA()
 myScada.initializeDevices()
+myScada.InitializeSCADA()
 myScada.connectAllDevices()
 
 export default app;

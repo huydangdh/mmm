@@ -11,7 +11,7 @@ export enum DeviceStatus {
 class Device extends EventEmitter {
   public deviceID: number;
   public deviceName: string;
-  public deviceSocket: net.Socket;
+  private deviceSocket: net.Socket;
   public deviceIP: string;
   public devicePort: number;
   public deviceStatus: string;
@@ -59,7 +59,9 @@ class Device extends EventEmitter {
       //console.error(`Error in ${this.deviceName} connection: ${error.message}`);
     });
   }
-
+  public sendToDevice(data: any){
+    this.deviceSocket.write(data);
+  }
   private handleReceivedData(data: Buffer): void {
     // Process and emit event for other classes to consume
     // You can customize this based on your specific data processing needs

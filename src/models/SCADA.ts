@@ -1,9 +1,36 @@
 import callProcessDeviceData from "@src/services/DbService";
 import Device, { DeviceStatus } from "./Device";
 import { deviceMockConfigs } from "@src/configs/Configs";
+import { Server, Socket } from "socket.io";
+
+enum ClientEmitMessage {
+  GETSTATUSDEVICES = "GetStatusDevices",
+  RECVSTATUSDEVICES = "RECVSTATUSDEVICES",
+}
 
 class SCADA {
   private deviceList: Device[] = [];
+  private socketIO!: Server;
+
+  // Create initializeSocketIO dont have args init with port 8888
+  InitializeSCADA(port?: number) {
+    this.socketIO = new Server().listen(8888, {
+      cors: {
+        origin: "*",
+      },
+    });
+    this.socketIO.on("connection", (socket: Socket) => {
+      console.log("TCL: publicInitializeSCADA -> socket[id]=", socket.id);
+
+      socket.on(ClientEmitMessage.GETSTATUSDEVICES, (data:any) => {
+        console.log("TCL: GETSTATUSDEVICES -> socket[id]=", socket.id);
+        socket.emit(
+          ClientEmitMessage.RECVSTATUSDEVICES,
+          JSON.stringify(this.deviceList)
+        );
+      });
+    });
+  }
 
   // Khởi tạo 10 devices từ cấu hình mock
   initializeDevices(): void {
@@ -35,8 +62,7 @@ class SCADA {
   }
   handleDeviceConnected(deviceName: any, data: any) {
     console.log(
-      `${new Date()
-        .toISOString()}=TCL: handleDeviceConnected -> ${deviceName},${data}`
+      `${new Date().toISOString()}=TCL: handleDeviceConnected -> ${deviceName},${data}`
     );
   }
   handleDeviceError(deviceName: string, error: any) {
@@ -67,13 +93,20 @@ class SCADA {
     });
   }
 
+  // get all feild( expect Socket) devices
+
   private async handleDataFromDevice(deviceID: number, data: string) {
     // Process and handle data from the device
-    callProcessDeviceData(deviceID, data).then((res) => {
-      this.deviceList.at(deviceID)?.deviceSocket.write(`DB:${res}`);
-      console.log(`${new Date().toISOString()}=DB_res_${deviceID}: ${res}`);
-    });
-
+    try {
+      callProcessDeviceData(deviceID, data).then((res) => {
+        this.deviceList.at(deviceID - 1)?.sendToDevice(`${data}|${res}`);
+        console.log(`${new Date().toISOString()}=DB_res_${deviceID}: ${res}`);
+      });
+    } catch (error) {
+      this.deviceList
+        .at(deviceID - 1)
+        ?.sendToDevice(`${data}|${error} \n`);
+    }
     console.log(
       `${new Date().toISOString()}=Data received from ${deviceID}: ${data}`
     );
