@@ -17,7 +17,7 @@ socket.on("connect", () => {
 	// Sử dụng logger khi nhận được dữ liệu từ device
 	socket.on(ClientEmitMessage.RECVDATA, (data) => {
 		// Log dữ liệu từ device
-		logger(`-->${data.deviceID}: ${JSON.stringify(data.data)}`);
+		logger(`->${data.deviceID}||${data.data.fromDevice}||${JSON.stringify(data.data.fromDB)}`);
 	});
 });
 

@@ -61,11 +61,15 @@ class Device extends EventEmitter {
 	public sendToDevice(data: any) {
 		this.deviceSocket?.write(data);
 	}
+  public getLastDeviceTick(): number {
+    return this.deviceTick;
+  }
 	private handleReceivedData(data: Buffer): void {
 		// Process and emit event for other classes to consume
 		// You can customize this based on your specific data processing needs
 		// For example, you can use an EventEmitter to emit events
 		// Emit event with the data
+    this.deviceTick = new Date().getTime()
 		this.emit(DeviceStatus.Receiving, {
 			deviceName: this.deviceName,
 			deviceID: this.deviceID,
