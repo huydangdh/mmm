@@ -1,68 +1,74 @@
 // ***** Start **** //
 const ClientEmitMessage = {
-  GETSTATUSDEVICES: "GetStatusDevices",
-  RECVSTATUSDEVICES: "RECVSTATUSDEVICES",
+	GETSTATUSDEVICES: "GetStatusDevices",
+	RECVSTATUSDEVICES: "RECVSTATUSDEVICES",
+	RECVDATA : "RECVDATA"
 };
 
 const socket = io("http://127.0.0.1:8888");
 socket.on("connect", () => {
-  console.log("TCL: socket[id]=", socket.id);
-  socket.emit(ClientEmitMessage.GETSTATUSDEVICES, "");
+	console.log("TCL: socket[id]=", socket.id);
+	socket.emit(ClientEmitMessage.GETSTATUSDEVICES, "");
 
-  socket.on(ClientEmitMessage.RECVSTATUSDEVICES, (deviceStatusList) => {
-    console.log("TCL: RECVSTATUSDEVICES=", deviceStatusList);
-    updateDeviceStatusList(deviceStatusList);
-  });
+	socket.on(ClientEmitMessage.RECVSTATUSDEVICES, (deviceStatusList) => {
+		console.log("TCL: RECVSTATUSDEVICES=", deviceStatusList);
+		updateDeviceStatusList(deviceStatusList);
+	});
+	// Sử dụng logger khi nhận được dữ liệu từ device
+	socket.on(ClientEmitMessage.RECVDATA, (data) => {
+		// Log dữ liệu từ device
+		logger(`-->${data.deviceID}: ${JSON.stringify(data.data)}`);
+	});
 });
 
 function updateDeviceStatusList(deviceStatusList) {
-  const table = document.getElementById("deviceTable");
-  const tbody = table.querySelector("tbody");
+	const table = document.getElementById("deviceTable");
+	const tbody = table.querySelector("tbody");
 
-  deviceStatusList.forEach((deviceStatus) => {
-    const {
-      deviceID,
-      deviceName,
-      deviceStatus: status,
-      deviceIP,
-      devicePort,
-    } = deviceStatus;
+	deviceStatusList.forEach((deviceStatus) => {
+		const {
+			deviceID,
+			deviceName,
+			deviceStatus: status,
+			deviceIP,
+			devicePort,
+		} = deviceStatus;
 
-    // Check if the row already exists for the device
-    const existingRow = tbody.querySelector(`tr[data-device-id="${deviceID}"]`);
+		// Check if the row already exists for the device
+		const existingRow = tbody.querySelector(`tr[data-device-id="${deviceID}"]`);
 
-    if (existingRow) {
-      // Update existing row
-      const statusCell = existingRow.querySelector(".status");
-      const ipCell = existingRow.querySelector(".ip");
-      const portCell = existingRow.querySelector(".port");
+		if (existingRow) {
+			// Update existing row
+			const statusCell = existingRow.querySelector(".status");
+			const ipCell = existingRow.querySelector(".ip");
+			const portCell = existingRow.querySelector(".port");
 
-      statusCell.textContent = status;
-      ipCell.textContent = deviceIP;
-      portCell.textContent = devicePort;
+			statusCell.textContent = status;
+			ipCell.textContent = deviceIP;
+			portCell.textContent = devicePort;
 
-      // Remove existing status class
-      existingRow.classList.remove("connected", "receiving", "disconnected");
+			// Remove existing status class
+			existingRow.classList.remove("connected", "receiving", "disconnected");
 
-      // Add new status class
-      switch (status) {
-        case "Connected":
-          existingRow.classList.add("connected");
-          break;
-        case "Receiving":
-          existingRow.classList.add("receiving");
-          break;
-        case "Disconnected":
-          existingRow.classList.add("disconnected");
-          break;
-        default:
-          break;
-      }
-    } else {
-      // Add a new row for the device
-      const newRow = document.createElement("tr");
-      newRow.setAttribute("data-device-id", deviceID);
-      newRow.innerHTML = `
+			// Add new status class
+			switch (status) {
+				case "Connected":
+					existingRow.classList.add("connected");
+					break;
+				case "Receiving":
+					existingRow.classList.add("receiving");
+					break;
+				case "Disconnected":
+					existingRow.classList.add("disconnected");
+					break;
+				default:
+					break;
+			}
+		} else {
+			// Add a new row for the device
+			const newRow = document.createElement("tr");
+			newRow.setAttribute("data-device-id", deviceID);
+			newRow.innerHTML = `
         <td>${deviceID}</td>
         <td>${deviceName}</td>
         <td class="status">${status}</td>
@@ -70,22 +76,29 @@ function updateDeviceStatusList(deviceStatusList) {
         <td class="port">${devicePort}</td>
       `;
 
-      // Add status class to the new row
-      switch (status) {
-        case "Connected":
-          newRow.classList.add("connected");
-          break;
-        case "Receiving":
-          newRow.classList.add("receiving");
-          break;
-        case "Disconnected":
-          newRow.classList.add("disconnected");
-          break;
-        default:
-          break;
-      }
+			// Add status class to the new row
+			switch (status) {
+				case "Connected":
+					newRow.classList.add("connected");
+					break;
+				case "Receiving":
+					newRow.classList.add("receiving");
+					break;
+				case "Disconnected":
+					newRow.classList.add("disconnected");
+					break;
+				default:
+					break;
+			}
 
-      tbody.appendChild(newRow);
-    }
-  });
+			tbody.appendChild(newRow);
+		}
+	});
 }
+
+const logger = (message) => {
+	const logList = document.getElementById("logList");
+	const logItem = document.createElement("li");
+	logItem.textContent = message;
+	logList.appendChild(logItem);
+};
