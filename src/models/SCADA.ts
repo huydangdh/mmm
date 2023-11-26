@@ -2,6 +2,7 @@ import callProcessDeviceData from "@src/services/DbService";
 import Device, { DeviceStatus } from "./Device";
 import { deviceMockConfigs } from "@src/configs/Configs";
 import { Server, Socket } from "socket.io";
+import { log } from "console";
 
 enum ClientEmitMessage {
   GETSTATUSDEVICES = "GetStatusDevices",
@@ -16,7 +17,7 @@ class SCADA {
   private checkDeviceStatusInterval: NodeJS.Timeout | null = null;
 
   // Create initializeSocketIO dont have args init with port 8888
-  InitializeSCADA(port?: number) {
+  InitializeSCADA() {
     this.socketIO = new Server().listen(8888, {
       cors: {
         origin: "*",
@@ -65,6 +66,12 @@ class SCADA {
       // }
       if (device.deviceStatus == DeviceStatus.Disconnected) {
         device.connectToDevice();
+      } else {
+        const lastDataReceivedTime = device.getLastDeviceTick();
+        if (currentTime - lastDataReceivedTime > 10000) {
+          device.connectToDevice();
+          console.log(`[I]Device ${device.deviceName} has no data for 10s!`);
+        }
       }
     });
   }
@@ -144,31 +151,20 @@ class SCADA {
       const lastProcessedTime =
         this.deviceList[deviceID - 1]?.getLastDeviceTick() || 0;
 
-      if (currentTime - lastProcessedTime >= 3000) {
-        // Đủ thời gian giãn cách, tiến hành xử lý dữ liệu
-        //this.deviceList[deviceID - 1].getLastDeviceTick() = currentTime;
-
-        callProcessDeviceData(deviceID, data).then((res) => {
-          const _temp = {
-            deviceID: deviceID,
-            data: {
-              fromDevice: data,
-              fromDB: res,
-            },
-          };
-          this.socketIO.emit(ClientEmitMessage.RECVDATA, _temp);
-          this.deviceList.at(deviceID - 1)?.sendToDevice(`${data}|${res}`);
-          console.log(
-            `${new Date().toISOString()}=DB_res_${deviceID}: ${res}`,
-          );
-        });
-      } else {
+      callProcessDeviceData(deviceID, data).then((res) => {
+        const _temp = {
+          deviceID: deviceID,
+          data: {
+            fromDevice: data,
+            fromDB: res,
+          },
+        };
+        this.socketIO.emit(ClientEmitMessage.RECVDATA, _temp);
+        this.deviceList.at(deviceID - 1)?.sendToDevice(`${data}|${res}`);
         console.log(
-          `${
-            new Date().toISOString()
-          }=Skipping data processing for ${deviceID}. Not enough time has passed since the last processing.`,
+          `${new Date().toISOString()}=DB_res_${deviceID}: ${res}`,
         );
-      }
+      });
     } catch (error) {
       const _temp = {
         deviceID: deviceID,
