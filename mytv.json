@@ -1,0 +1,42 @@
+[
+  {
+    "name": "VTV1 HD",
+    "url": "https://live.fptplay53.net/fnxch2/vtv1hd_abr.smil/chunklist.m3u8"
+  },
+  {
+    "name": "VTV2 HD",
+    "url": "https://live.fptplay53.net/fnxhd1/vtv2_vhls.smil/chunklist_b5000000.m3u8"
+  },
+  {
+    "name": "VTV3 HD",
+    "url": "https://live.fptplay53.net/fnxch2/vtv3hd_abr.smil/chunklist.m3u8"
+  },
+  {
+    "name": "VTV4 HD",
+    "url": "https://live.fptplay53.net/fnxch2/vtv4hd_abr.smil/chunklist.m3u8"
+  },
+  {
+    "name": "VTV5 HD",
+    "url": "https://live.fptplay53.net/epzch2/vtv5hd_abr.smil/chunklist.m3u8"
+  },
+  {
+    "name": "HUNG YEN TV",
+    "url": "https://cmcdp3.vtvdigital.vn/hls/HUNGYENTV/index.m3u8"
+  },
+  {
+    "name": "NINH BINH TV",
+    "url": "https://live.fptplay53.net/fnxsd1/ninhbinh_hls.smil/chunklist.m3u8"
+  },
+  {
+    "name": "HAI PHONG",
+    "url": "https://live.fptplay53.net/fnxsd1/haiphong_hls.smil/chunklist.m3u8"
+  },
+  {
+    "name": "ANTV",
+    "url": "https://cmcty.vtvdigital.vn/mean/ANNINHTV/index.m3u8"
+  },
+  {
+    "name": "QPVN",
+    "url": "https://live.fptplay53.net/fnxhd2/quocphongvnhd_vhls.smil/chunklist_b1800000.m3u8"
+  }
+]
