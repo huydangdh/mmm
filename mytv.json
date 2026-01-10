@@ -1,4 +1,4 @@
-[
+o[
   {
     "name": "VTV1 HD",
     "url": "https://live.fptplay53.net/fnxch2/vtv1hd_abr.smil/chunklist.m3u8"
@@ -40,8 +40,8 @@
     "url": "https://live.fptplay53.net/fnxhd2/quocphongvnhd_vhls.smil/chunklist_b1800000.m3u8"
   },
    {
-    "name": "test",
-    "url": ""
+    "name": "BBC News",
+    "url": "https://vs-hls-push-ww-live.akamaized.net/x=4/i=urn:bbc:pips:service:bbc_news_channel_hd/mobile_wifi_main_hd_abr_v2.m3u8"
   }
  
 ]
