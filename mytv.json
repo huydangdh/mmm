@@ -21,7 +21,7 @@
   },
   {
     "name": "HUNG YEN TV",
-    "url": "https://1253218859.e.cdneverest.net/JM0jrtISAqq2UWMluBOAow/1768413454/live/285f5449d7d7d2946e0bd2d54b7e60f25a4/playlist.m3u8"
+    "url": "https://1253218859.e.cdneverest.net/oLXFMzpoYWS5Id5PKh5t1A/1768415301/live/285f5449d7d7d2946e0bd2d54b7e60f25a4/playlist.m3u8"
   },
   {
     "name": "NINH BINH TV",
@@ -39,7 +39,6 @@
     "name": "QPVN",
     "url": "https://live.fptplay53.net/fnxhd2/quocphongvnhd_vhls.smil/chunklist_b1800000.m3u8"
   },
-   
   {
     "name": "Beautiful Life TV",
     "url": "https://5ddce30eb4b55.streamlock.net/bltvhd/bltv1/playlist.m3u8"
@@ -148,5 +147,4 @@
     "name": "唯心電視 (480p)",
     "url": "https://mobile.ccdntech.com/transcoder/_definst_/vod164_Live/live/chunklist_w1177047531.m3u8"
   }
-
 ]
