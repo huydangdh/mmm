@@ -1,0 +1,39 @@
+name: Run Python and Auto Commit Every 4 Hours
+
+on:
+  schedule:
+    # Chạy vào phút thứ 0 của mỗi 4 tiếng (0h, 4h, 8h, 12h, 16h, 20h UTC)
+    - cron: '0 */12 * * *'
+  workflow_dispatch: # Giúp bạn có thể bấm nút "Run workflow" thủ công bất cứ lúc nào
+
+jobs:
+  run-and-commit:
+    runs-on: ubuntu-latest
+    
+    permissions:
+      contents: write
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.10'
+          cache: 'pip'
+
+      - name: Install dependencies
+        run: |
+          if [ -f requirements.txt ]; then pip install -r requirements.txt; fi
+
+      - name: Run mytv.py
+        run: python mytv.py
+
+      - name: Commit and Push changes
+        run: |
+          git config --local user.email "github-actions[bot]@users.noreply.github.com"
+          git config --local user.name "github-actions[bot]"
+          git add .
+          # Kiểm tra xem có thay đổi không, nếu có thì mới commit để tránh lỗi
+          git diff --quiet && git diff --staged --quiet || (git commit -m "Auto-update: $(date)" && git push)
