@@ -3,7 +3,7 @@ name: Run Python and Auto Commit Every 4 Hours
 on:
   schedule:
     # Chạy vào phút thứ 0 của mỗi 4 tiếng (0h, 4h, 8h, 12h, 16h, 20h UTC)
-    - cron: '0 */12 * * *'
+    - cron: '0 */6 * * *'
   workflow_dispatch: # Giúp bạn có thể bấm nút "Run workflow" thủ công bất cứ lúc nào
 
 jobs:
